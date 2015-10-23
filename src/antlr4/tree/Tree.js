@@ -84,6 +84,46 @@ function ParseTreeVisitor() {
 	return this;
 }
 
+ParseTreeVisitor.prototype.visit = function(tree) {
+	var result = tree.accept(this);
+	if (result === null || result === undefined){
+		return this.defaultResult();
+	}
+	return result;
+};
+
+
+ParseTreeVisitor.prototype.visitChildren = function(tree) {
+
+	var result = this.defaultResult();
+	var n = tree.getChildCount();
+
+	for(var i = 0; i < n && this.shouldVisitNextChild(tree, result); ++i) {
+		var c = tree.getChild(i);
+		var childResult = c.accept(this);
+		result = this.aggregateResult(result, childResult);
+	}
+
+	return result;
+};
+ParseTreeVisitor.prototype.visitTerminal = function(tree) {
+	return this.defaultResult();
+};
+ParseTreeVisitor.prototype.visitErrorNode = function(tree) {
+	return this.defaultResult();
+};
+
+ParseTreeVisitor.prototype.defaultResult = function() {
+	return null;
+};
+ParseTreeVisitor.prototype.aggregateResult = function(aggregate, nextResult) {
+	return nextResult;
+};
+ParseTreeVisitor.prototype.shouldVisitNextChild = function(tree, currentResult) {
+	return true;
+};
+
+
 function ParseTreeListener() {
 	return this;
 }
